@@ -1,0 +1,8 @@
+build-*/
+Level-Headed/Build_Scripts/Unix/Level-Headed/
+*.pro.user
+*.pro.user.*
+.~lock.*
+*.autosave
+.qmake.stash
+
