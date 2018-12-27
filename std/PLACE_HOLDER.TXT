@@ -1,0 +1,2 @@
+Standard C++ code with no dependencies go in this folder.
+
