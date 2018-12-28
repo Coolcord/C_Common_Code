@@ -10,10 +10,13 @@ public:
     Readable_Config_File();
     ~Readable_Config_File();
     bool Open(const QString &fileLocation);
+    bool Open_Without_Loading(const QString &fileLocation);
     bool Is_Open();
     bool Discard_And_Close();
     bool Save_And_Close();
     bool Save();
+    bool Reload();
+    void Clear_Values();
     bool Rename_Identifier(const QString &oldIdentifier, const QString &newIdentifier);
     bool Get_Value(const QString &identifier, QString &value);
     bool Get_Value(const QString &identifier, bool &value);
@@ -25,6 +28,7 @@ public:
     bool Set_Value(const QString &identifier, double value);
 
 private:
+    bool Open_And_Load(const QString &fileLocation, bool load);
     void Close();
     bool Load();
     bool Parse_Line(const QString &line, QString &identifier, QString &value);

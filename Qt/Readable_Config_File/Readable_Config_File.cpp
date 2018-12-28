@@ -1,6 +1,7 @@
 #include "Readable_Config_File.h"
 #include <assert.h>
 #include <iterator>
+#include <QFileInfo>
 #include <QTextStream>
 
 Readable_Config_File::Readable_Config_File() {
@@ -15,24 +16,15 @@ Readable_Config_File::~Readable_Config_File() {
 }
 
 bool Readable_Config_File::Open(const QString &fileLocation) {
-    if (this->Is_Open()) this->Save_And_Close();
-    assert(this->map->isEmpty());
-    this->file = new QFile(fileLocation);
-    if (this->file->open(QIODevice::ReadWrite)) {
-        if (!this->file->isReadable() || !this->file->isWritable()) return false;
-        bool loaded = this->Load();
-        if (loaded) {
-            this->fileLocation = fileLocation;
-            return true;
-        }
-    }
-    this->Discard_And_Close();
-    return false;
+    return this->Open_And_Load(fileLocation, true);
+}
+
+bool Readable_Config_File::Open_Without_Loading(const QString &fileLocation) {
+    return this->Open_And_Load(fileLocation, false);
 }
 
 bool Readable_Config_File::Is_Open() {
-    if (!this->file) return false;
-    return this->file->isOpen();
+    return static_cast<bool>(this->file);
 }
 
 bool Readable_Config_File::Discard_And_Close() {
@@ -48,13 +40,24 @@ bool Readable_Config_File::Save_And_Close() {
 }
 
 bool Readable_Config_File::Save() {
-    if (!this->Is_Open() || !this->file->isWritable()) return false;
-    this->file->reset();
+    if (!this->Is_Open()) return false;
+    if (!this->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
     QTextStream stream(this->file);
     for (QMap<QString, QString>::iterator iter = this->map->begin(); iter != this->map->end(); ++iter) {
         stream << iter.key() << "=" << iter.value() << endl;
     }
+    this->file->close();
     return true;
+}
+
+bool Readable_Config_File::Reload() {
+    if (!this->Is_Open()) return false;
+    this->map->clear();
+    return this->Load();
+}
+
+void Readable_Config_File::Clear_Values() {
+    this->map->clear();
 }
 
 bool Readable_Config_File::Rename_Identifier(const QString &oldIdentifier, const QString &newIdentifier) {
@@ -130,16 +133,28 @@ bool Readable_Config_File::Set_Value(const QString &identifier, double value) {
     return this->Set_Value(identifier, QString::number(value));
 }
 
+bool Readable_Config_File::Open_And_Load(const QString &fileLocation, bool load) {
+    if (this->Is_Open()) this->Save_And_Close();
+    assert(this->map->isEmpty());
+    this->file = new QFile(fileLocation);
+    if (QFileInfo(fileLocation).isReadable() && (!load || (load && this->Load()))) {
+        this->fileLocation = fileLocation;
+        return true;
+    } else {
+        this->Discard_And_Close();
+        return false;
+    }
+}
+
 void Readable_Config_File::Close() {
-    this->file->close();
+    assert(!this->file->isOpen());
     delete this->file;
     this->file = nullptr;
     this->map->clear();
 }
 
 bool Readable_Config_File::Load() {
-    if (!this->Is_Open() || !this->file->isReadable()) return false;
-    this->file->reset();
+    if (!this->file->open(QIODevice::ReadOnly)) return false;
     QTextStream stream(this->file);
     while (!stream.atEnd()) {
         QString identifier = QString(), value = QString();
@@ -147,6 +162,7 @@ bool Readable_Config_File::Load() {
             this->map->insert(identifier, value);
         }
     }
+    this->file->close();
     return true;
 }
 
