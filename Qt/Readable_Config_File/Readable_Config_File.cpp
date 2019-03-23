@@ -137,7 +137,7 @@ bool Readable_Config_File::Open_And_Load(const QString &fileLocation, bool load)
     if (this->Is_Open()) this->Save_And_Close();
     assert(this->map->isEmpty());
     this->file = new QFile(fileLocation);
-    if (QFileInfo(fileLocation).isReadable() && (!load || (load && this->Load()))) {
+    if (!load || (load && this->Load())) {
         this->fileLocation = fileLocation;
         return true;
     } else {
