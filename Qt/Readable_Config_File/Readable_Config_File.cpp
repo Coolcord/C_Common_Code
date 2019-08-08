@@ -1,6 +1,7 @@
 #include "Readable_Config_File.h"
 #include <assert.h>
 #include <iterator>
+#include <QDir>
 #include <QFileInfo>
 #include <QTextStream>
 
@@ -134,6 +135,7 @@ bool Readable_Config_File::Set_Value(const QString &identifier, double value) {
 }
 
 bool Readable_Config_File::Open_And_Load(const QString &fileLocation, bool load) {
+    if (!QDir().mkpath(QFileInfo(fileLocation).path())) return false;
     if (this->Is_Open()) this->Save_And_Close();
     assert(this->map->isEmpty());
     this->file = new QFile(fileLocation);
