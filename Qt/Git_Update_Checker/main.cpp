@@ -43,7 +43,7 @@ bool Is_Configuration_Valid(const QString &applicationLocation) {
     QStringList arguments;
     process.setProgram(applicationLocation+GIT_EXE_LOCATION);
     if (!QFileInfo(process.program()).exists()) return false;
-    arguments << "ls-remote" << "--tags" << "https://github.com/Coolcord/Level-Headed.git";
+    arguments << "ls-remote" << "--tags" << "https://github.com/Coolcord/Sequential_Archive.git";
     process.setArguments(arguments);
     process.start(process.program(), process.arguments());
     process.waitForFinished(-1);

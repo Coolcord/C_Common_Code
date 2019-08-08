@@ -22,7 +22,7 @@ QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, con
     process.start(process.program(), process.arguments());
     process.waitForFinished(-1);
     QByteArray bytes = process.readAllStandardOutput();
-    if (bytes.isEmpty()) QString(); //cannot connect to the server
+    if (bytes.isEmpty()) return QString(); //cannot connect to the server
 
     //Check for a new version based upon the output
     QString newVersion = QString();
