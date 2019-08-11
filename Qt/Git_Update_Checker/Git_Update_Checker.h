@@ -10,6 +10,7 @@ public:
     //Returns a version number if there is an update. Empty string if not.
     QString Check_For_Updates(const QString &currentVersion, const QString &remoteUrl);
     QString Check_For_Updates(const QString &currentVersion, const QString &remoteUrl, QString gitLocation);
+    bool Is_Version_Newer_Than_Current(const QString &version, const QString &currentVersion);
 
 private:
     bool Get_Version_Numbers_From_String(const QString &version, int &significantVersion, int &majorVersion, int &minorVersion, int &patchVersion);

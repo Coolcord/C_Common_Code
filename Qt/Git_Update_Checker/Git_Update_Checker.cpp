@@ -54,6 +54,22 @@ QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, con
     return newVersion;
 }
 
+bool Git_Update_Checker::Is_Version_Newer_Than_Current(const QString &version, const QString &currentVersion) {
+    int significantVersion = 0, majorVersion = 0, minorVersion = 0, patchVersion = 0;
+    int currentSignificantVersion = 0, currentMajorVersion = 0, currentMinorVersion = 0, currentPatchVersion = 0;
+    if (!this->Get_Version_Numbers_From_String(version, significantVersion, majorVersion, minorVersion, patchVersion)) return false;
+    if (!this->Get_Version_Numbers_From_String(currentVersion, currentSignificantVersion, currentMajorVersion, currentMinorVersion, currentPatchVersion)) return false;
+    if (significantVersion > currentSignificantVersion) return true;
+    else if (significantVersion < currentSignificantVersion) return false;
+    else if (majorVersion > currentMajorVersion) return true;
+    else if (majorVersion < currentMajorVersion) return false;
+    else if (minorVersion > currentMinorVersion) return true;
+    else if (minorVersion < currentMinorVersion) return false;
+    else if (patchVersion > currentPatchVersion) return true;
+    else if (patchVersion < currentPatchVersion) return false;
+    else return false;
+}
+
 bool Git_Update_Checker::Get_Version_Numbers_From_String(const QString &version, int &significantVersion, int &majorVersion, int &minorVersion, int &patchVersion) {
     //Read the patch version first
     QStringList numbers = version.split('-');
