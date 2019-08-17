@@ -1,6 +1,6 @@
 //This code will build a working Git ls-remote binary directory for use with the Update_Checker class
-//Simply download a full Git install and copy the files into the program directory under ./Git
-//When the code is run, the unnecessary files from the ./Git folder will be removed!
+//Simply download a full Git install and copy the files into the program directory under ./Plugins/Git
+//When the code is run, the unnecessary files from the ./Plugins/Git folder will be removed!
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -9,7 +9,7 @@
 #include <QProcess>
 #include <assert.h>
 
-const static QString GIT_EXE_LOCATION = "/Git/bin/git.exe";
+const static QString GIT_EXE_LOCATION = "/Plugins/Git/bin/git.exe";
 
 bool Get_Version_Numbers_From_String(const QString &version, int &significantVersion, int &majorVersion, int &minorVersion, int &patchVersion) {
     //Read the patch version first
@@ -70,8 +70,8 @@ bool Is_Configuration_Valid(const QString &applicationLocation, const QString &r
 }
 
 bool Is_Configuration_Valid(const QString &applicationLocation) {
-    if (!Is_Configuration_Valid(applicationLocation, "https://github.com/Coolcord/Sequential_Archive.git")) return false;
-    return Is_Configuration_Valid(applicationLocation, "git@github.com:Coolcord/Sequential_Archive.git");
+    //if (!Is_Configuration_Valid(applicationLocation, "git@github.com:Coolcord/Sequential_Archive.git")) return false;
+    return Is_Configuration_Valid(applicationLocation, "https://github.com/Coolcord/Sequential_Archive.git");
 }
 
 bool Check_Folder(const QString &applicationLocation, const QString &folderPath) {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
     if (!Is_Configuration_Valid(applicationLocation)) { qInfo() << "Configuration is not valid! Make sure that Git is installed properly and that you are connected to the internet!"; return 1; }
 
     qInfo() << "Building environment... Please wait...";
-    if (!Check_Folder(applicationLocation, applicationLocation + "/Git")) return 1;
+    if (!Check_Folder(applicationLocation, applicationLocation + "/Plugins/Git")) return 1;
     if (!QDir(applicationLocation+"/tmp").removeRecursively()) { qInfo() << "Unable to remove the tmp folder!"; return 1; }
     qInfo() << "Git environment prepared successfully!";
     return 0;

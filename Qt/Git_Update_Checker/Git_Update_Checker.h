@@ -17,7 +17,6 @@ public:
 private:
     bool Get_Version_Numbers_From_String(const QString &version, int &significantVersion, int &majorVersion, int &minorVersion, int &patchVersion);
     QByteArray Run_Git_LS_Remote_Command(const QString &gitLocation, const QString &remoteUrl, bool useSSL);
-    bool Toggle_Local_SSL(const QString &gitLocation, bool enable);
 };
 
 #endif // GIT_UPDATE_CHECKER_H

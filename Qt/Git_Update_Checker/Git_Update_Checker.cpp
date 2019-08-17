@@ -103,8 +103,16 @@ bool Git_Update_Checker::Get_Version_Numbers_From_String(const QString &version,
 }
 
 QByteArray Git_Update_Checker::Run_Git_LS_Remote_Command(const QString &gitLocation, const QString &remoteUrl, bool useSSL) {
-    if (remoteUrl.startsWith("http") && !this->Toggle_Local_SSL(gitLocation, useSSL)) return QByteArray();
+    if (remoteUrl.startsWith("http") && !useSSL) return QByteArray();
     QProcess process;
+
+    //Set the Environment Flags
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    if (useSSL) env.insert("GIT_SSL_NO_VERIFY", "false");
+    else env.insert("GIT_SSL_NO_VERIFY", "true");
+    process.setProcessEnvironment(env);
+
+    //Set the arguments
     QStringList arguments;
     process.setProgram(gitLocation);
     arguments << "ls-remote" << "--tags" << remoteUrl;
@@ -112,18 +120,4 @@ QByteArray Git_Update_Checker::Run_Git_LS_Remote_Command(const QString &gitLocat
     process.start(process.program(), process.arguments());
     process.waitForFinished(-1);
     return process.readAllStandardOutput();
-}
-
-bool Git_Update_Checker::Toggle_Local_SSL(const QString &gitLocation, bool enable) {
-    if (gitLocation == "git" || gitLocation == "git.exe") return false; //don't toggle for the system version
-    QProcess process;
-    QStringList arguments;
-    process.setProgram(gitLocation);
-    QString enableString = "false";
-    if (enable) enableString = "true";
-    arguments << "config" << "http.sslVerify" << enableString;
-    process.setArguments(arguments);
-    process.start(process.program(), process.arguments());
-    process.waitForFinished(-1);
-    return true; //ignore output
 }
