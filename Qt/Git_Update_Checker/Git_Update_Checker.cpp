@@ -3,26 +3,36 @@
 #include <QProcess>
 #include <QTextStream>
 
-QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, const QString &remoteUrl) {
-    return this->Check_For_Updates(currentVersion, remoteUrl, QString());
+QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, QString &foundViaUrl, const QString &remoteUrl) {
+    QStringList remoteUrls; remoteUrls << remoteUrl;
+    return this->Check_For_Updates(currentVersion, foundViaUrl, remoteUrls, QString());
 }
 
-QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, const QString &remoteUrl, QString gitLocation) {
+QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, QString &foundViaUrl, const QStringList &remoteUrls) {
+    return this->Check_For_Updates(currentVersion, foundViaUrl, remoteUrls, QString());
+}
+
+QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, QString &foundViaUrl, const QString &remoteUrl, QString gitLocation) {
+    QStringList remoteUrls; remoteUrls << remoteUrl;
+    return this->Check_For_Updates(currentVersion, foundViaUrl, remoteUrls, gitLocation);
+}
+
+QString Git_Update_Checker::Check_For_Updates(const QString &currentVersion, QString &foundViaUrl, const QStringList &remoteUrls, QString gitLocation) {
     if (currentVersion.contains("dev")) return QString(); //don't check for updates in development builds
     int significantVersion = 0, majorVersion = 0, minorVersion = 0, patchVersion = 0;
     assert(this->Get_Version_Numbers_From_String(currentVersion, significantVersion, majorVersion, minorVersion, patchVersion));
 
     //Run Git to check the remote server for updates
-    if (!QFileInfo(gitLocation).exists() && !QFileInfo(gitLocation+".exe").exists()) gitLocation = "git"; //run system version
-    QProcess process;
-    QStringList arguments;
-    process.setProgram(gitLocation);
-    arguments << "ls-remote" << "--tags" << remoteUrl;
-    process.setArguments(arguments);
-    process.start(process.program(), process.arguments());
-    process.waitForFinished(-1);
-    QByteArray bytes = process.readAllStandardOutput();
-    if (bytes.isEmpty()) return QString(); //cannot connect to the server
+    QByteArray bytes;
+    bool localExists = QFileInfo(gitLocation).exists() || QFileInfo(gitLocation+".exe").exists();
+    for (QString remoteUrl : remoteUrls) {
+        if (!bytes.isEmpty()) break; //something was returned, so don't check any other URLs
+        if (localExists) bytes = this->Run_Git_LS_Remote_Command(gitLocation, remoteUrl, true); //try local Git first
+        if (bytes.isEmpty()) bytes = this->Run_Git_LS_Remote_Command("git", remoteUrl, true); //try the system version
+        if (bytes.isEmpty() && localExists) bytes = this->Run_Git_LS_Remote_Command(gitLocation, remoteUrl, false); //try once more without SSL
+        if (!bytes.isEmpty()) foundViaUrl = remoteUrl;
+    }
+    if (bytes.isEmpty()) return QString(); //no internet or the server is down
 
     //Check for a new version based upon the output
     QString newVersion = QString();
@@ -90,4 +100,30 @@ bool Git_Update_Checker::Get_Version_Numbers_From_String(const QString &version,
     if (!valid) return false;
 
     return true;
+}
+
+QByteArray Git_Update_Checker::Run_Git_LS_Remote_Command(const QString &gitLocation, const QString &remoteUrl, bool useSSL) {
+    if (remoteUrl.startsWith("http") && !this->Toggle_Local_SSL(gitLocation, useSSL)) return QByteArray();
+    QProcess process;
+    QStringList arguments;
+    process.setProgram(gitLocation);
+    arguments << "ls-remote" << "--tags" << remoteUrl;
+    process.setArguments(arguments);
+    process.start(process.program(), process.arguments());
+    process.waitForFinished(-1);
+    return process.readAllStandardOutput();
+}
+
+bool Git_Update_Checker::Toggle_Local_SSL(const QString &gitLocation, bool enable) {
+    if (gitLocation == "git" || gitLocation == "git.exe") return false; //don't toggle for the system version
+    QProcess process;
+    QStringList arguments;
+    process.setProgram(gitLocation);
+    QString enableString = "false";
+    if (enable) enableString = "true";
+    arguments << "config" << "http.sslVerify" << enableString;
+    process.setArguments(arguments);
+    process.start(process.program(), process.arguments());
+    process.waitForFinished(-1);
+    return true; //ignore output
 }

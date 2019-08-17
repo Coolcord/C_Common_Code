@@ -33,7 +33,7 @@ bool Get_Version_Numbers_From_String(const QString &version, int &significantVer
     return true;
 }
 
-bool Is_Configuration_Valid(const QString &applicationLocation) {
+bool Is_Configuration_Valid(const QString &applicationLocation, const QString &remoteUrl) {
     QString version = "0.0.0";
     int significantVersion = 0, majorVersion = 0, minorVersion = 0, patchVersion = 0;
     assert(Get_Version_Numbers_From_String(version, significantVersion, majorVersion, minorVersion, patchVersion));
@@ -43,7 +43,7 @@ bool Is_Configuration_Valid(const QString &applicationLocation) {
     QStringList arguments;
     process.setProgram(applicationLocation+GIT_EXE_LOCATION);
     if (!QFileInfo(process.program()).exists()) return false;
-    arguments << "ls-remote" << "--tags" << "https://github.com/Coolcord/Sequential_Archive.git";
+    arguments << "ls-remote" << "--tags" << remoteUrl;
     process.setArguments(arguments);
     process.start(process.program(), process.arguments());
     process.waitForFinished(-1);
@@ -67,6 +67,11 @@ bool Is_Configuration_Valid(const QString &applicationLocation) {
     }
 
     return newVersionAvailable;
+}
+
+bool Is_Configuration_Valid(const QString &applicationLocation) {
+    if (!Is_Configuration_Valid(applicationLocation, "https://github.com/Coolcord/Sequential_Archive.git")) return false;
+    return Is_Configuration_Valid(applicationLocation, "git@github.com:Coolcord/Sequential_Archive.git");
 }
 
 bool Check_Folder(const QString &applicationLocation, const QString &folderPath) {
