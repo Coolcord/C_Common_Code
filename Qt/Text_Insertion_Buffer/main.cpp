@@ -18,9 +18,9 @@ int main(int argc, char *argv[]) {
 
     //Run Forwards
     qInfo().noquote() << "Forwards:";
-    qInfo().noquote() << textInsertionBuffer.Get_First_Line().trimmed();
+    qInfo().noquote() << textInsertionBuffer.Get_First_Line();
     while (!textInsertionBuffer.At_End()) {
-        qInfo().noquote() << textInsertionBuffer.Get_Next_Line().trimmed();
+        qInfo().noquote() << textInsertionBuffer.Get_Next_Line();
     }
 
     qInfo().noquote() << "";
@@ -32,6 +32,12 @@ int main(int argc, char *argv[]) {
     while (!textInsertionBuffer.At_Beginning()) {
         qInfo().noquote() << textInsertionBuffer.Get_Previous_Line().trimmed();
     }
+
+    qInfo().noquote() << "";
+    qInfo().noquote() << "";
+
+    if (textInsertionBuffer.Write_Buffer_To_File("./test.txt")) qInfo() << "Write succeeded!";
+    else qInfo() << "Write failed!";
 
     return a.exec();
 }

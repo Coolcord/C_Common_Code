@@ -2,12 +2,6 @@
 #include <QTextStream>
 #include <assert.h>
 
-#ifdef Q_OS_WIN32
-const static QString STRING_NEW_LINE = "\r\n";
-#else
-const static QString STRING_NEW_LINE = "\n";
-#endif
-
 Text_Insertion_Buffer::Text_Insertion_Buffer() {
     this->buffer = new QLinkedList<QString>();
     this->iter = this->buffer->begin();
@@ -115,43 +109,43 @@ QString Text_Insertion_Buffer::Read_All_Remaining() {
 }
 
 void Text_Insertion_Buffer::Insert_At_Beginning(const QString &line) {
-    this->buffer->prepend(line+STRING_NEW_LINE);
+    this->buffer->prepend(line);
     this->iter = this->buffer->begin();
 }
 
 void Text_Insertion_Buffer::Insert_After_Current_Line(const QString &line) {
     QLinkedList<QString>::iterator tmpIter = this->iter;
     ++tmpIter;
-    this->iter = this->buffer->insert(tmpIter, line+STRING_NEW_LINE);
+    this->iter = this->buffer->insert(tmpIter, line);
 }
 
 void Text_Insertion_Buffer::Insert_Before_Current_Line(const QString &line) {
-    this->iter = this->buffer->insert(this->iter, line+STRING_NEW_LINE);
+    this->iter = this->buffer->insert(this->iter, line);
 }
 
 void Text_Insertion_Buffer::Insert_At_End(const QString &line) {
-    this->buffer->append(line+STRING_NEW_LINE);
+    this->buffer->append(line);
     this->iter = this->buffer->end()-1;
 }
 
 void Text_Insertion_Buffer::Insert_At_Beginning_Without_Seeking(const QString &line) {
-    this->buffer->prepend(line+STRING_NEW_LINE);
+    this->buffer->prepend(line);
 }
 
 void Text_Insertion_Buffer::Insert_After_Current_Line_Without_Seeking(const QString &line) {
     QLinkedList<QString>::iterator tmpIter = this->iter;
     ++tmpIter;
-    this->iter = this->buffer->insert(tmpIter, line+STRING_NEW_LINE);
+    this->iter = this->buffer->insert(tmpIter, line);
     --this->iter;
 }
 
 void Text_Insertion_Buffer::Insert_Before_Current_Line_Without_Seeking(const QString &line) {
-    this->iter = this->buffer->insert(this->iter, line+STRING_NEW_LINE);
+    this->iter = this->buffer->insert(this->iter, line);
     ++this->iter;
 }
 
 void Text_Insertion_Buffer::Insert_At_End_Without_Seeking(const QString &line) {
-    this->buffer->append(line+STRING_NEW_LINE);
+    this->buffer->append(line);
 }
 
 void Text_Insertion_Buffer::Remove_Current_Line() {
@@ -175,9 +169,9 @@ void Text_Insertion_Buffer::Remove_Last_Line() {
 bool Text_Insertion_Buffer::Write_Buffer_To_File(QFile *file) {
     assert(file);
     QTextStream stream(file);
-    while (!this->At_End()) stream << this->Get_Next_Line();
+    while (!this->At_End()) stream << this->Get_Next_Line() << endl;
     stream.flush();
-    return true;
+    return stream.status() == QTextStream::Ok;
 }
 
 bool Text_Insertion_Buffer::Write_Buffer_To_File(const QString &fileLocation) {
@@ -185,8 +179,8 @@ bool Text_Insertion_Buffer::Write_Buffer_To_File(const QString &fileLocation) {
     if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) return false;
     this->Seek_To_Beginning();
     QTextStream stream(&file);
-    while (!this->At_End()) stream << this->Get_Next_Line();
+    while (!this->At_End()) stream << this->Get_Next_Line() << endl;
     stream.flush();
     file.close();
-    return true;
+    return stream.status() == QTextStream::Ok;
 }
