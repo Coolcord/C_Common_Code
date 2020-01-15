@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
     qInfo().noquote() << "";
     qInfo().noquote() << "";
 
-    if (textInsertionBuffer.Write_Buffer_To_File("./test.txt")) qInfo() << "Write succeeded!";
+    if (textInsertionBuffer.Write_To_File("./test.txt")) qInfo() << "Write succeeded!";
     else qInfo() << "Write failed!";
 
     return a.exec();
