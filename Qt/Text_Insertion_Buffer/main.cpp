@@ -16,9 +16,21 @@ int main(int argc, char *argv[]) {
     textInsertionBuffer.Insert_Before_Current_Line("is");
     textInsertionBuffer.Insert_At_End("test");
 
+    //Run Forwards
+    qInfo().noquote() << "Forwards:";
     qInfo().noquote() << textInsertionBuffer.Get_First_Line().trimmed();
     while (!textInsertionBuffer.At_End()) {
         qInfo().noquote() << textInsertionBuffer.Get_Next_Line().trimmed();
+    }
+
+    qInfo().noquote() << "";
+    qInfo().noquote() << "";
+
+    //Run Backwards
+    qInfo().noquote() << "Backwards:";
+    qInfo().noquote() << textInsertionBuffer.Get_Last_Line().trimmed();
+    while (!textInsertionBuffer.At_Beginning()) {
+        qInfo().noquote() << textInsertionBuffer.Get_Previous_Line().trimmed();
     }
 
     return a.exec();

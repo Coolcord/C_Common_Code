@@ -34,11 +34,13 @@ public:
 
     //Read text without seeking
     QString Peek_First_Line();
+    QString Peek_Last_Line();
     QString Peek_Next_Line();
     QString Peek_Previous_Line();
 
     //Read text and seek
     QString Get_First_Line();
+    QString Get_Last_Line();
     QString Get_Current_Line();
     QString Get_Previous_Line();
     QString Get_Next_Line();
