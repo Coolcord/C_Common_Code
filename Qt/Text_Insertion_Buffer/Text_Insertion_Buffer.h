@@ -30,10 +30,12 @@ public:
     bool Is_Empty();
 
     //Seek without reading text
+    void Seek_To_Before_Beginning(); //seeks to an imaginary line 0 to make Get_Next_Line() loops simple
     void Seek_To_Beginning();
     void Seek_To_Next();
     void Seek_To_Previous();
     void Seek_To_End();
+    void Seek_To_After_End(); //seeks to an imaginary line at the end of the buffer to make Get_Previous_Line() loops simple
 
     //Read text without seeking
     QString Peek_First_Line();
@@ -81,6 +83,8 @@ private:
     QLinkedList<QString> *buffer; //use a linked list instead of a vector for quick insertions
     QLinkedList<QString>::iterator iter;
     QString lineBuffer;
+    bool beforeBeginning;
+    bool afterEnd;
 };
 
 #endif // TEXT_INSERTION_BUFFER_H

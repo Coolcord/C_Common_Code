@@ -6,6 +6,8 @@ Text_Insertion_Buffer::Text_Insertion_Buffer() {
     this->buffer = new QLinkedList<QString>();
     this->iter = this->buffer->begin();
     this->lineBuffer = QString();
+    this->beforeBeginning = false;
+    this->afterEnd = false;
 }
 
 Text_Insertion_Buffer::~Text_Insertion_Buffer() {
@@ -37,79 +39,112 @@ bool Text_Insertion_Buffer::Is_Empty() {
     return this->buffer->isEmpty();
 }
 
+void Text_Insertion_Buffer::Seek_To_Before_Beginning() {
+    if (this->buffer->isEmpty()) return;
+    this->iter = this->buffer->begin();
+    this->beforeBeginning = true;
+}
+
 void Text_Insertion_Buffer::Seek_To_Beginning() {
+    if (this->buffer->isEmpty()) return;
     this->iter = this->buffer->begin();
 }
 
 void Text_Insertion_Buffer::Seek_To_Next() {
+    if (this->buffer->isEmpty()) return;
+    if (this->beforeBeginning) { this->beforeBeginning = false; return; }
     if (this->iter == this->buffer->end()-1) return;
     ++this->iter;
 }
 
 void Text_Insertion_Buffer::Seek_To_Previous() {
+    if (this->buffer->isEmpty()) return;
     if (this->iter == this->buffer->begin()) return;
     --this->iter;
 }
 
 void Text_Insertion_Buffer::Seek_To_End() {
+    if (this->buffer->isEmpty()) return;
+    if (this->buffer->begin() == this->buffer->end()) return;
+    this->iter = this->buffer->end()-1;
+}
+
+void Text_Insertion_Buffer::Seek_To_After_End() {
+    if (this->buffer->isEmpty()) return;
+    this->afterEnd = true;
     if (this->buffer->begin() == this->buffer->end()) return;
     this->iter = this->buffer->end()-1;
 }
 
 QString Text_Insertion_Buffer::Peek_First_Line() {
+    if (this->buffer->isEmpty()) return QString();
     return *this->buffer->begin();
 }
 
 QString Text_Insertion_Buffer::Peek_Last_Line() {
+    if (this->buffer->isEmpty()) return QString();
     return *(this->buffer->end()-1);
 }
 
 QString Text_Insertion_Buffer::Peek_Next_Line() {
+    if (this->buffer->isEmpty()) return QString();
     if (this->At_End()) return QString();
+    if (this->beforeBeginning) return this->Peek_First_Line();
     QLinkedList<QString>::iterator tmpIter = this->iter;
     ++tmpIter;
     return *tmpIter;
 }
 
 QString Text_Insertion_Buffer::Peek_Previous_Line() {
+    if (this->buffer->isEmpty()) return QString();
     QLinkedList<QString>::iterator tmpIter = this->iter;
+    if (this->afterEnd) return this->Peek_Last_Line();
     if (tmpIter == this->buffer->begin()) return QString();
     --tmpIter;
     return *tmpIter;
 }
 
 QString Text_Insertion_Buffer::Get_First_Line() {
+    if (this->buffer->isEmpty()) return QString();
     this->iter = this->buffer->begin();
     return this->buffer->first();
 }
 
 QString Text_Insertion_Buffer::Get_Last_Line() {
+    if (this->buffer->isEmpty()) return QString();
     this->iter = this->buffer->end()-1;
     return *this->iter;
 }
 
 QString Text_Insertion_Buffer::Get_Current_Line() {
+    if (this->buffer->isEmpty()) return QString();
     return *this->iter;
 }
 
 QString Text_Insertion_Buffer::Get_Previous_Line() {
+    if (this->buffer->isEmpty()) return QString();
     if (this->iter == this->buffer->begin()) return QString();
+    if (this->afterEnd) { this->afterEnd = false; return *this->iter; }
     --this->iter;
     return *this->iter;
 }
 
 QString Text_Insertion_Buffer::Get_Next_Line() {
+    if (this->buffer->isEmpty()) return QString();
     if (this->At_End()) return QString();
+    if (this->beforeBeginning) { this->beforeBeginning = false; return *this->iter; }
     ++this->iter;
     return *this->iter;
 }
 
 QString Text_Insertion_Buffer::Read_All() {
+    if (this->buffer->isEmpty()) return QString();
     this->Seek_To_Beginning();
     return this->Read_All_Remaining();
 }
 
 QString Text_Insertion_Buffer::Read_All_Remaining() {
+    if (this->buffer->isEmpty()) return QString();
     QString data;
     while (this->iter != this->buffer->end()) {
         data += *this->iter;
@@ -200,9 +235,8 @@ bool Text_Insertion_Buffer::Write_To_File(QFile *file) {
 bool Text_Insertion_Buffer::Write_To_File(const QString &fileLocation) {
     QFile file(fileLocation);
     if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) return false;
-    this->Seek_To_Beginning();
+    this->Seek_To_Before_Beginning();
     QTextStream stream(&file);
-    stream << this->Get_First_Line() << endl;
     while (!this->At_End()) stream << this->Get_Next_Line() << endl;
     stream.flush();
     file.close();
