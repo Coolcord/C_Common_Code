@@ -160,6 +160,7 @@ void Text_Insertion_Buffer::Insert_At_Beginning(const QString &line) {
 }
 
 void Text_Insertion_Buffer::Insert_After_Current_Line(const QString &line) {
+    if (this->buffer->isEmpty()) return this->Insert_Before_Current_Line(line);
     QLinkedList<QString>::iterator tmpIter = this->iter;
     ++tmpIter;
     this->iter = this->buffer->insert(tmpIter, this->lineBuffer+line);
