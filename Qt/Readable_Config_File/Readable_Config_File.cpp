@@ -45,7 +45,7 @@ bool Readable_Config_File::Save() {
     if (!this->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
     QTextStream stream(this->file);
     for (QMap<QString, QString>::iterator iter = this->map->begin(); iter != this->map->end(); ++iter) {
-        stream << iter.key() << "=" << iter.value() << endl;
+        stream << iter.key() << "=" << iter.value() << STRING_NEW_LINE;
     }
     this->file->close();
     return true;

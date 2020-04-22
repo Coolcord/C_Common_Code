@@ -36,6 +36,12 @@ private:
     QFile *file;
     QMap<QString, QString> *map;
     QString fileLocation;
+
+    #ifdef Q_OS_WIN32
+    const QString STRING_NEW_LINE = "\r\n"; //Qt's endl seems to use only \n for some reason... I'll look into this later
+    #else
+    const QString STRING_NEW_LINE = "\n";
+    #endif
 };
 
 #endif // READABLE_CONFIG_FILE_H
