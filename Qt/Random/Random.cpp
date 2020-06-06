@@ -25,6 +25,7 @@ int Random::Get_Num(int min, int max) {
     assert(max >= 0);
     assert(min <= max);
     if (max == 0) return 0;
+    //return ((rand()%((max-min)+1)))+min;
     return this->randomGenerator->bounded(min, max+1);
 }
 
