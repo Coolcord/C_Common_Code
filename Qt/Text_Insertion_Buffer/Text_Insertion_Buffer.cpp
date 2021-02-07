@@ -227,8 +227,8 @@ void Text_Insertion_Buffer::Add_To_Line_Buffer(const QString &line) {
 bool Text_Insertion_Buffer::Write_To_File(QFile *file) {
     assert(file);
     QTextStream stream(file);
-    stream << this->Get_First_Line() << endl;
-    while (!this->At_End()) stream << this->Get_Next_Line() << endl;
+    stream << this->Get_First_Line() << Qt::endl;
+    while (!this->At_End()) stream << this->Get_Next_Line() << Qt::endl;
     stream.flush();
     return stream.status() == QTextStream::Ok;
 }
@@ -238,7 +238,7 @@ bool Text_Insertion_Buffer::Write_To_File(const QString &fileLocation) {
     if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) return false;
     this->Seek_To_Before_Beginning();
     QTextStream stream(&file);
-    while (!this->At_End()) stream << this->Get_Next_Line() << endl;
+    while (!this->At_End()) stream << this->Get_Next_Line() << Qt::endl;
     stream.flush();
     file.close();
     return stream.status() == QTextStream::Ok;
