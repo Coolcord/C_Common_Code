@@ -11,8 +11,9 @@
  */
 
 #include <QFile>
-#include <QLinkedList>
 #include <QString>
+#include <iterator>
+#include <list>
 
 class Text_Insertion_Buffer {
 public:
@@ -80,8 +81,8 @@ public:
     bool Write_To_File(const QString &fileLocation);
 
 private:
-    QLinkedList<QString> *buffer; //use a linked list instead of a vector for quick insertions
-    QLinkedList<QString>::iterator iter;
+    std::list<QString> *buffer; //use a linked list instead of a vector for quick insertions
+    std::list<QString>::iterator iter;
     QString lineBuffer;
     bool beforeBeginning;
     bool afterEnd;
