@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iterator>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
 
@@ -56,6 +57,16 @@ bool Readable_Config_File::Save() {
     if (this->platformAgnostic) newLine = "\n";
     for (QMap<QString, QString>::iterator iter = this->map->begin(); iter != this->map->end(); ++iter) {
         stream << iter.key() << "=" << iter.value() << STRING_NEW_LINE;
+    }
+
+    //Compress the file
+    if (this->platformAgnostic) {
+        this->file->close();
+        if (!this->file->open(QIODevice::ReadOnly)) { this->file->remove(); return false; }
+        QByteArray bytes = qCompress(this->file->readAll());
+        this->file->close();
+        if (!this->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) { this->file->remove(); return false; }
+        if (this->file->write(bytes) != bytes.size()) return false;
     }
     this->file->close();
     return true;
@@ -167,7 +178,9 @@ void Readable_Config_File::Close() {
 
 bool Readable_Config_File::Load() {
     if (!this->file->open(QIODevice::ReadOnly)) return false;
-    QTextStream stream(this->file);
+    QByteArray bytes = this->file->readAll();
+    if (this->platformAgnostic) bytes = qUncompress(bytes);
+    QTextStream stream(bytes);
     while (!stream.atEnd()) {
         QString identifier = QString(), value = QString();
         if (this->Parse_Line(stream.readLine(), identifier, value)) {
