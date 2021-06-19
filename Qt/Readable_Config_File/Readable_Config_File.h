@@ -8,6 +8,7 @@
 class Readable_Config_File {
 public:
     Readable_Config_File();
+    Readable_Config_File(bool platformAgnostic);
     ~Readable_Config_File();
     bool Open(const QString &fileLocation);
     bool Open_Without_Loading(const QString &fileLocation);
@@ -36,6 +37,7 @@ private:
     QFile *file;
     QMap<QString, QString> *map;
     QString fileLocation;
+    bool platformAgnostic;
 
     #ifdef Q_OS_WIN32
     const QString STRING_NEW_LINE = "\r\n"; //Qt's endl seems to use only \n for some reason... I'll look into this later

@@ -6,6 +6,14 @@
 #include <QTextStream>
 
 Readable_Config_File::Readable_Config_File() {
+    this->platformAgnostic = false;
+    this->file = nullptr;
+    this->map = new QMap<QString, QString>();
+    this->fileLocation = QString();
+}
+
+Readable_Config_File::Readable_Config_File(bool platformAgnostic) {
+    this->platformAgnostic = platformAgnostic;
     this->file = nullptr;
     this->map = new QMap<QString, QString>();
     this->fileLocation = QString();
@@ -44,6 +52,8 @@ bool Readable_Config_File::Save() {
     if (!this->Is_Open()) return false;
     if (!this->file->open(QIODevice::WriteOnly | QIODevice::Truncate)) return false;
     QTextStream stream(this->file);
+    QString newLine = STRING_NEW_LINE;
+    if (this->platformAgnostic) newLine = "\n";
     for (QMap<QString, QString>::iterator iter = this->map->begin(); iter != this->map->end(); ++iter) {
         stream << iter.key() << "=" << iter.value() << STRING_NEW_LINE;
     }
