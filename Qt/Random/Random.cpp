@@ -29,6 +29,10 @@ int Random::Get_Num(int min, int max) {
     return this->randomGenerator->bounded(min, max+1);
 }
 
+QRandomGenerator *Random::Get_Random_Generator() {
+    return this->randomGenerator;
+}
+
 void Random::Seed(unsigned int seed) {
     srand(seed);
     this->randomGenerator->seed(seed);

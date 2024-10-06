@@ -10,6 +10,7 @@ public:
     void Seed(const QString &seed, unsigned int instance); //instance should be > 0
     int Get_Num(int max); //Max is inclusive (e.g. max of 10 will return numbers 0-10)
     int Get_Num(int min, int max);
+    QRandomGenerator *Get_Random_Generator();
 
 private:
     Random() { this->randomGenerator = new QRandomGenerator(); this->instance = 0; }
